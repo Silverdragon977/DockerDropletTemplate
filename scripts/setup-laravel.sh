@@ -481,26 +481,48 @@ fi
 PEST_FILE="$PROJECT_ROOT/tests/Pest.php"
 
 
-if [[ ! -f "$PEST_FILE" ]]; then
+# ============================================================
+# Create basic Laravel feature test
+#
+# Every project created from this template gets a simple
+# smoke test proving that the root route renders successfully.
+#
+# Existing tests are preserved.
+# ============================================================
+
+FEATURE_TEST_DIR="$PROJECT_ROOT/tests/Feature"
+
+HOME_PAGE_TEST="$FEATURE_TEST_DIR/HomePageTest.php"
+
+
+mkdir -p "$FEATURE_TEST_DIR"
+
+
+if [[ ! -f "$HOME_PAGE_TEST" ]]; then
 
     echo
-    echo "🧪 Creating tests/Pest.php..."
+    echo "🧪 Creating basic homepage Pest test..."
 
 
-    cat > "$PEST_FILE" <<'EOF'
+    cat > "$HOME_PAGE_TEST" <<'EOF'
 <?php
 
-pest()
-    ->extend(Tests\TestCase::class)
-    ->in('Feature');
+test('home page loads successfully', function () {
+
+    $this->withoutVite();
+
+    $this->get('/')
+        ->assertOk();
+
+});
 EOF
 
 
-    ok "Pest Laravel configuration created."
+    ok "Basic homepage Pest test created."
 
 else
 
-    info "Existing tests/Pest.php preserved."
+    info "Existing HomePageTest.php preserved."
 
 fi
 

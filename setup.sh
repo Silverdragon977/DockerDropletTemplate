@@ -787,6 +787,12 @@ EOF
 
     ./vendor/bin/pest
 
+    ok "Pest tests passed."
+
+
+    # ------------------------------------------------------------
+    # TypeScript validation
+    # ------------------------------------------------------------
 
     echo
     echo "🔎 Running TypeScript check..."
@@ -794,12 +800,28 @@ EOF
 
     npm run typecheck
 
+    ok "TypeScript check completed."
+
+    # ------------------------------------------------------------
+    # Production frontend build
+    #
+    # This verifies that React, TypeScript, SCSS, and Vite can all
+    # produce the same kind of compiled assets CI/production need.
+    # ------------------------------------------------------------
+
 
     echo
     echo "🏗️ Running production frontend build..."
 
 
     npm run build
+
+    ok "Frontend production build passed."
+
+    
+    # ------------------------------------------------------------
+    # Laravel cache cleanup
+    # ------------------------------------------------------------
 
 
     echo
