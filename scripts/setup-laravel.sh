@@ -341,16 +341,24 @@ if [[ "$LARAVEL_EXISTS" == "false" ]]; then
     # without disabling Vite, which causes CI to look for a Vite
     # manifest during backend-only tests.
     # --------------------------------------------------------
-    
+
     DEFAULT_FEATURE_TEST="$PROJECT_ROOT/tests/Feature/ExampleTest.php"
-    
-    
+    DEFAULT_UNIT_TEST="$PROJECT_ROOT/tests/Unit/ExampleTest.php"
+
     if [[ -f "$DEFAULT_FEATURE_TEST" ]]; then
-    
+
         rm -f "$DEFAULT_FEATURE_TEST"
-    
+
         ok "Removed Laravel default Feature/ExampleTest.php."
-    
+
+    fi
+
+    if [[ -f "$DEFAULT_UNIT_TEST" ]]; then
+
+        rm -f "$DEFAULT_UNIT_TEST"
+
+        ok "Removed Laravel default Unit/ExampleTest.php."
+
     fi
 
 
