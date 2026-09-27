@@ -13,6 +13,8 @@ set -Eeuo pipefail
 #   - Merge Laravel into the reusable template
 #   - Preserve existing template files
 #   - Install PHP dependencies
+#   - Install Pest + Pest Laravel plugin
+#   - Configure tests/Pest.php
 #   - Create .env when needed
 #   - Configure safe Laravel runtime defaults
 #   - Generate APP_KEY
@@ -394,6 +396,133 @@ composer install \
 
 
 ok "Composer dependencies installed."
+
+
+# ============================================================
+# Install Pest
+#
+# Laravel ships with PHPUnit as its default test framework.
+#
+# This template uses Pest for application tests because it
+# provides a cleaner, more readable syntax while still using
+# PHPUnit underneath.
+#
+# Pest is installed as a DEVELOPMENT dependency only.
+# Production uses composer install --no-dev, so Pest is not
+# included in the production Docker image.
+# ============================================================
+
+echo
+echo "🧪 Checking Pest installation..."
+
+
+if ! composer show pestphp/pest >/dev/null 2>&1; then
+
+    echo
+    echo "📦 Installing Pest..."
+
+
+    # --------------------------------------------------------
+    # Laravel may directly require PHPUnit in composer.json.
+    #
+    # Pest itself depends on PHPUnit, so remove Laravel's
+    # direct development requirement before adding Pest.
+    #
+    # --no-update changes composer.json without performing a
+    # separate dependency update.
+    # --------------------------------------------------------
+
+    if composer show \
+        --direct \
+        phpunit/phpunit \
+        >/dev/null 2>&1
+    then
+
+        composer remove \
+            phpunit/phpunit \
+            --dev \
+            --no-update \
+            --no-interaction
+
+    fi
+
+
+    composer require \
+        pestphp/pest:^4.0 \
+        pestphp/pest-plugin-laravel:^4.0 \
+        --dev \
+        --with-all-dependencies \
+        --no-interaction
+
+
+    ok "Pest installed."
+
+else
+
+    info "Pest is already installed."
+
+fi
+
+
+# ============================================================
+# Pest Laravel configuration
+#
+# Feature tests need Laravel's Tests\TestCase so helpers such
+# as these are available:
+#
+#   $this->get(...)
+#   $this->post(...)
+#   $this->actingAs(...)
+#   $this->assertDatabaseHas(...)
+#
+# Unit tests remain normal lightweight Pest tests.
+# ============================================================
+
+PEST_FILE="$PROJECT_ROOT/tests/Pest.php"
+
+
+if [[ ! -f "$PEST_FILE" ]]; then
+
+    echo
+    echo "🧪 Creating tests/Pest.php..."
+
+
+    cat > "$PEST_FILE" <<'EOF'
+<?php
+
+pest()
+    ->extend(Tests\TestCase::class)
+    ->in('Feature');
+EOF
+
+
+    ok "Pest Laravel configuration created."
+
+else
+
+    info "Existing tests/Pest.php preserved."
+
+fi
+
+
+# ============================================================
+# Verify Pest
+# ============================================================
+
+if [[ ! -x "$PROJECT_ROOT/vendor/bin/pest" ]]; then
+
+    die "Pest was installed but vendor/bin/pest was not found."
+
+fi
+
+
+PEST_VERSION="$(
+    "$PROJECT_ROOT/vendor/bin/pest" \
+        --version
+)"
+
+
+ok "$PEST_VERSION"
 
 
 # ============================================================

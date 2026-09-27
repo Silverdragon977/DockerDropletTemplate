@@ -782,10 +782,10 @@ EOF
     echo
 
 
-    echo "🧪 Running Laravel tests..."
+    echo "🧪 Running Pest tests..."
 
 
-    php artisan test
+    ./vendor/bin/pest
 
 
     echo
