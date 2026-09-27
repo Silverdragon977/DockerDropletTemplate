@@ -332,6 +332,29 @@ if [[ "$LARAVEL_EXISTS" == "false" ]]; then
     ok "Laravel skeleton merged."
 
 
+
+    # --------------------------------------------------------
+    # Remove Laravel's default example feature test
+    #
+    # This template creates its own Pest homepage test later.
+    # Laravel's default ExampleTest attempts to render the page
+    # without disabling Vite, which causes CI to look for a Vite
+    # manifest during backend-only tests.
+    # --------------------------------------------------------
+    
+    DEFAULT_FEATURE_TEST="$PROJECT_ROOT/tests/Feature/ExampleTest.php"
+    
+    
+    if [[ -f "$DEFAULT_FEATURE_TEST" ]]; then
+    
+        rm -f "$DEFAULT_FEATURE_TEST"
+    
+        ok "Removed Laravel default Feature/ExampleTest.php."
+    
+    fi
+
+
+
     # --------------------------------------------------------
     # Cleanup temporary Laravel download
     # --------------------------------------------------------
