@@ -1004,6 +1004,77 @@ find "$PROJECT_ROOT" \
 
 ok "Shell-script permissions finalized."
 
+# ============================================================
+# Laravel APP_KEY
+#
+# Every Laravel installation requires a unique APP_KEY.
+#
+# Development normally receives one during setup-laravel.sh.
+# Production may not have host-side PHP installed because the
+# application runs inside Docker, so generate the Laravel key
+# directly using OpenSSL when it is missing.
+#
+# IMPORTANT:
+#
+# Never replace an existing APP_KEY automatically.
+#
+# Changing an existing key can invalidate encrypted values,
+# cookies, sessions, and other Laravel-encrypted data.
+# ============================================================
+
+echo
+echo "🔑 Checking Laravel APP_KEY..."
+
+
+CURRENT_APP_KEY="$(
+    grep \
+        '^APP_KEY=' \
+        "$ENV_FILE" \
+        2>/dev/null \
+        | head -n 1 \
+        | cut -d= -f2- \
+        || true
+)"
+
+
+if [[ -z "$CURRENT_APP_KEY" ]]; then
+
+    if ! command -v openssl >/dev/null 2>&1; then
+
+        die "APP_KEY is missing and OpenSSL is not available.
+
+Install OpenSSL before continuing."
+
+    fi
+
+
+    echo "🔑 APP_KEY is missing. Generating a new key..."
+
+
+    NEW_APP_KEY="base64:$(openssl rand -base64 32)"
+
+
+    set_env_value \
+        "$ENV_FILE" \
+        "APP_KEY" \
+        "$NEW_APP_KEY"
+
+
+    unset NEW_APP_KEY
+
+
+    chmod \
+        0600 \
+        "$ENV_FILE"
+
+
+    ok "Laravel APP_KEY generated."
+
+else
+
+    info "Existing Laravel APP_KEY preserved."
+
+fi
 
 # ============================================================
 # Summary
