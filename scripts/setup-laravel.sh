@@ -291,6 +291,7 @@ if [[ "$LARAVEL_ALREADY_EXISTS" == false ]]; then
         laravel/laravel \
         "$TEMP_LARAVEL" \
         --no-install \
+        --no-scripts \
         --no-interaction
 
 
