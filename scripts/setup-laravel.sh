@@ -733,15 +733,33 @@ if [[ ! -f "$CADDY_FILE" ]]; then
 
 
     cat > "$CADDY_FILE" <<'EOF'
+# ============================================================
 # Generic Laravel Caddy Configuration
 #
-# APP_DOMAIN is passed to Caddy by Docker Compose.
+# APP_DOMAIN is supplied by Docker Compose from .env.
+#
+# Supports:
+#   example.com
+#   www.example.com -> example.com
+#
+# Caddy automatically handles HTTPS.
+# ============================================================
 
+
+# Primary domain
 {$APP_DOMAIN} {
 
     encode zstd gzip
 
     reverse_proxy app:80
+
+}
+
+
+# Redirect www to primary domain
+www.{$APP_DOMAIN} {
+
+    redir https://{$APP_DOMAIN}{uri} permanent
 
 }
 EOF
